@@ -8,18 +8,30 @@ def emotion_detector(text_to_analyze):
     headers = {"grpc-metadata-mm-model-id": "emotion_aggregated-workflow_lang_en_stock"}
     myobj = { "raw_document": { "text": text_to_analyze } }
     response = requests.post(url = url, headers = headers, json = myobj)
-    formatted_response = json.loads(response.text)
-    emote = formatted_response['emotionPredictions'][0]['emotion']
-    anger_score = emote['anger']
-    disgust_score = emote['disgust']
-    fear_score = emote['fear']
-    joy_score = emote['joy']
-    sadness_score = emote['sadness']
-    high_score = -1000
-    for emotion in emote:
-        if float(emote[emotion]) > high_score:
-            high_score = float(emote[emotion])
-            dominant_emotion = emotion
+
+    if response.status_code == 200:
+        formatted_response = json.loads(response.text)
+        emote = formatted_response['emotionPredictions'][0]['emotion']
+        anger_score = emote['anger']
+        disgust_score = emote['disgust']
+        fear_score = emote['fear']
+        joy_score = emote['joy']
+        sadness_score = emote['sadness']
+        high_score = -1000
+
+        for emotion in emote:
+            if float(emote[emotion]) > high_score:
+                high_score = float(emote[emotion])
+                dominant_emotion = emotion
+
+    elif response.status_code == 400:
+        anger_score = None
+        disgust_score = None
+        fear_score = None
+        joy_score = None
+        sadness_score = None
+        dominant_emotion = None
+        
     
     return {
 'anger': anger_score,
